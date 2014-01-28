@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS=-std=gnu99 -Wall -g
+#CFLAGS=-std=gnu99 -Wall -g -O3 -pg
+CFLAGS=-std=gnu99 -Wall -g -O3
 
 all: quali-d
 

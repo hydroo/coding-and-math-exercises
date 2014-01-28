@@ -31,11 +31,9 @@ static Chest* duplicateChest(const Chest *c) {
         d->keys = NULL;
     } else {
         d->keys = (int*) malloc(sizeof(int) * c->keyCount);
+        memcpy(d->keys, c->keys, c->keyCount * sizeof(int));
     }
     d->keyCount = c->keyCount;
-    for (int i = 0; i < d->keyCount; i += 1) {
-        d->keys[i] = c->keys[i];
-    }
     return d;
 }
 
@@ -74,29 +72,9 @@ static State* newState() {
     return s;
 }
 
-static State *duplicateState(const State* s) {
-    State *t = (State*) malloc(sizeof(State));
-    if (s->keys == NULL) {
-        t->keys = NULL;
-    } else {
-        t->keys = (int*) malloc(sizeof(int) * s->keyCount);
-    }
-    t->keyCount = s->keyCount;
-    for (int i = 0; i < t->keyCount; i += 1) {
-        t->keys[i] = s->keys[i];
-    }
-    t->chests = (Chest**) malloc(sizeof(Chest*) * s->chestCount);
-    t->chestCount = s->chestCount;
-    for (int i = 0; i < t->chestCount; i += 1) {
-        if (s->chests[i] == NULL) {
-            t->chests[i] = NULL;
-        } else {
-            t->chests[i] = duplicateChest(s->chests[i]);
-        }
-    }
-    return t;
-}
-
+//static State *duplicateState(const State* s) {
+//}
+//
 static void freeState(State *s) {
     free(s->keys);
     for (int i = 0; i < s->chestCount; i += 1) {
@@ -264,46 +242,51 @@ static int findIntRecursive(const int *v, int begin, int end, int key) {
     }
 }
 
-static int *removeInt(int *v, int vLen, int index) {
-    assert(vLen > 0);
-    assert(v != NULL);
-
-    if (vLen == 1) {
-        free(v);
-        return NULL;
-    }
-
-    int *w = (int *) malloc(sizeof(int) * (vLen-1));
-
-    int i = 0;
-    while (i < index) {
-        w[i] = v[i];
-        i += 1;
-    }
-    i += 1;
-    while (i > index && i < vLen) {
-        w[i-1] = v[i];
-        i += 1;
-    }
-
-    free(v);
-
-    return w;
-}
-
-static int *mergeArrays(int *v, int vLen, int *w, int wLen) {
-    int *x = (int*) malloc(sizeof(int) * (vLen + wLen));
-    for (int i = 0; i < vLen; i += 1) {
-        x[i] = v[i];
-    }
-    for (int i = 0; i < wLen; i += 1) {
-        x[i+vLen] = w[i];
-    }
-    qsort(x, vLen+wLen, sizeof(int), lessThanInt);
-    return x;
-}
-
 /* *** work **************************************************************** */
+static State* openChest(State *s, int chestIndex, int keyIndex) {
+
+    Chest *c = s->chests[chestIndex];
+
+    State *t = (State*) malloc(sizeof(State));
+    t->keyCount = s->keyCount + c->keyCount - 1;
+
+    if (t->keyCount == 0) {
+        t->keys = NULL;
+    } else {
+        t->keys = (int*) malloc(sizeof(int) * t->keyCount);
+
+        if (keyIndex > 0 && keyIndex < s->keyCount-1) {
+            // copy left side
+            memcpy(t->keys, s->keys, keyIndex * sizeof(int));
+        }
+        if (keyIndex < s->keyCount-1) {
+            //copy right side
+            memcpy(&(t->keys[keyIndex]), &(s->keys[keyIndex+1]), (s->keyCount - (keyIndex+1)) * sizeof(int));
+        }
+
+        if (c->keyCount > 0) {
+            // copy chest keys
+            memcpy(&(t->keys[s->keyCount-1]), c->keys, c->keyCount * sizeof(int));
+        }
+
+        if (t->keyCount != c->keyCount) {
+            qsort(t->keys, t->keyCount, sizeof(int), lessThanInt);
+        }
+    }
+
+    t->chests = (Chest**) malloc(sizeof(Chest*) * s->chestCount);
+    t->chestCount = s->chestCount;
+    for (int i = 0; i < t->chestCount; i += 1) {
+        if (s->chests[i] == NULL || i == chestIndex) {
+            t->chests[i] = NULL;
+        } else {
+            t->chests[i] = duplicateChest(s->chests[i]);
+        }
+    }
+
+    return t;
+}
+
 static int solve(State *s, int *solution, int step) {
 
     int allChestsNull = 1;
@@ -321,17 +304,7 @@ static int solve(State *s, int *solution, int step) {
 
         if ((keyIndex = findInt(s->keys, s->keyCount, c->lock)) == -1) { continue; }
 
-        State *t = duplicateState(s);
-        t->keys = removeInt(t->keys, t->keyCount, keyIndex);
-        t->keyCount = t->keyCount-1;
-
-        int *tmp = t->keys;
-        t->keys = mergeArrays(t->keys, t->keyCount, t->chests[i]->keys, t->chests[i]->keyCount);
-        t->keyCount += t->chests[i]->keyCount;
-        free(tmp);
-        freeChest(t->chests[i]);
-        t->chests[i] = NULL;
-
+        State *t = openChest(s, i, keyIndex);
         int ret = solve(t, solution, step + 1);
         freeState(t);
 
