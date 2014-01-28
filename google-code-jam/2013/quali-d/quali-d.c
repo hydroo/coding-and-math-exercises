@@ -154,6 +154,8 @@ static char **readLines(const char *fileName) {
 
     assert(currentLine == lineCount);
 
+    fclose(f);
+
     return lines;
 }
 
@@ -351,7 +353,7 @@ static int solve(State *s, int *solution, int step) {
 /* ************************************************************************* */
 int main(int argc, char **args) {
     assert(argc > 1);
-    char *inputFile = strdup(args[1]);
+    char *inputFile = args[1];
 
     /* read input */
     int caseCount;
@@ -379,6 +381,8 @@ int main(int argc, char **args) {
             }
         }
         printf("\n");
+
+        free(solution);
     }
 
     /* free */
