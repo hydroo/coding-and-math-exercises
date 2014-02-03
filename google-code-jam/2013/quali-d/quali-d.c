@@ -6,6 +6,13 @@
 #include <string.h>
 
 
+#ifdef DEBUG
+#   define ASSERT(x) assert(x)
+#else
+#   define ASSERT(x)
+#endif
+
+
 static int lessThanInt (const void *a, const void *b);
 
 
@@ -130,7 +137,7 @@ static char **readLines(const char *fileName) {
     }
     free(line);
 
-    assert(currentLine == lineCount);
+    ASSERT(currentLine == lineCount);
 
     fclose(f);
 
@@ -146,7 +153,7 @@ static void freeLines(char **lines, int lineCount) {
 
 static State **casesFromInput(const char *fileName, int *caseCount) {
     int lineCount = countLines(fileName);
-    assert(lineCount > 0);
+    ASSERT(lineCount > 0);
     char **lines = readLines(fileName);
 
     // input line: caseCount
@@ -174,7 +181,7 @@ static State **casesFromInput(const char *fileName, int *caseCount) {
             i += 1;
         }
         sscanf(line, "%i", &(s->keys[i]));
-        assert(i == (s->keyCount-1));
+        ASSERT(i == (s->keyCount-1));
         currentLine += 1;
 
         qsort(s->keys, s->keyCount, sizeof(int), lessThanInt);
@@ -198,7 +205,7 @@ static State **casesFromInput(const char *fileName, int *caseCount) {
                     j += 1;
                 }
                 sscanf(line, "%i", &(c->keys[j]));
-                assert(j == (c->keyCount-1));
+                ASSERT(j == (c->keyCount-1));
 
                 qsort(c->keys, c->keyCount, sizeof(int), lessThanInt);
             }
@@ -244,6 +251,8 @@ static int findIntRecursive(const int *v, int begin, int end, int key) {
 
 /* *** work **************************************************************** */
 static State* openChest(State *s, int chestIndex, int keyIndex) {
+
+    ASSERT(s->keyCount > 0);
 
     Chest *c = s->chests[chestIndex];
 
