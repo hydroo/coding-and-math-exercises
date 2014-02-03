@@ -248,7 +248,7 @@ static State* openChest(State *s, int chestIndex, int keyIndex) {
     Chest *c = s->chests[chestIndex];
 
     State *t = (State*) malloc(sizeof(State));
-    t->keyCount = s->keyCount + c->keyCount - 1;
+    t->keyCount = s->keyCount - 1 + c->keyCount;
 
     if (t->keyCount == 0) {
         t->keys = NULL;
@@ -269,7 +269,7 @@ static State* openChest(State *s, int chestIndex, int keyIndex) {
             memcpy(&(t->keys[s->keyCount-1]), c->keys, c->keyCount * sizeof(int));
         }
 
-        if (t->keyCount != c->keyCount) {
+        if (c->keyCount != 0 && s->keyCount-1 != 0) {
             qsort(t->keys, t->keyCount, sizeof(int), lessThanInt);
         }
     }
