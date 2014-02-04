@@ -1,5 +1,5 @@
 CC=gcc
-#CFLAGS=-std=gnu99 -Wall -g -O1 -pg
+#CFLAGS=-std=gnu99 -Wall -g -pg
 #CFLAGS=-std=gnu99 -Wall -g -O3 -mtune=corei7-avx -mavx -march=corei7-avx
 CFLAGS=-std=gnu99 -Wall -g -DDEBUG
 
