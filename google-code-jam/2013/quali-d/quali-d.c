@@ -310,7 +310,7 @@ static int solve(State *s, int *solution, int step) {
         }
 
         if (neededKeys > availableKeys) {
-            //printf("%d: needed: %d, avail: %d\n", key, neededKeys, availableKeys);
+            //printf("key: %d: needed: %d, avail: %d\n", key, neededKeys, availableKeys);
             return 0;
         }
     }
