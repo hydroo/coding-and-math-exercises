@@ -93,7 +93,7 @@ static void printState(const State* s) {
     printf("\n");
 
     for (int i = 0; i < s->chestCount; i += 1) {
-        printf("%3i: ", i);
+        printf("%3i: ", i+1);
         printChest(s->chests[i]);
     }
 }
