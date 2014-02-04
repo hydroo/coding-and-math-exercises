@@ -12,8 +12,8 @@
 #   define ASSERT(x)
 #endif
 
-#define MAX_KEY_COUNT 21  // small input
-//#define MAX_KEY_COUNT 201 //large input
+//#define MAX_KEY_COUNT 21  // small input
+#define MAX_KEY_COUNT 201 //large input
 
 
 /* *** chest *************************************************************** */
