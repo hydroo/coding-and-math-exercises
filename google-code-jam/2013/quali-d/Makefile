@@ -1,7 +1,7 @@
 CC=gcc
-#CFLAGS=-std=gnu99 -Wall -g -O3 -pg
-#CFLAGS=-std=gnu99 -Wall -g -O3
-CFLAGS=-std=gnu99 -Wall -g -O3 -DDEBUG
+#CFLAGS=-std=gnu99 -Wall -g -O1 -pg
+#CFLAGS=-std=gnu99 -Wall -g -O3 -mtune=corei7-avx -mavx -march=corei7-avx
+CFLAGS=-std=gnu99 -Wall -g -DDEBUG
 
 all: quali-d
 

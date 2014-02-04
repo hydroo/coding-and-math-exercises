@@ -12,51 +12,39 @@
 #   define ASSERT(x)
 #endif
 
-
-static int lessThanInt (const void *a, const void *b);
+#define MAX_KEY_COUNT 21  // small input
+//#define MAX_KEY_COUNT 201 //large input
 
 
 /* *** chest *************************************************************** */
 typedef struct {
+    int opened;
     int lock;
-    int *keys;
-    int keyCount;
+    int keys[MAX_KEY_COUNT];
 } Chest;
 
 static Chest* newChest() {
     Chest *c = (Chest*) malloc(sizeof(Chest));
+    c->opened = 0;
     c->lock = -1;
-    c->keys = NULL;
-    c->keyCount = 0;
+    memset(c->keys, 0, sizeof(int) * MAX_KEY_COUNT);
     return c;
-}
-
-static Chest* duplicateChest(const Chest *c) {
-    Chest *d = (Chest*) malloc(sizeof(Chest));
-    d->lock = c->lock;
-    if (c->keys == NULL) {
-        d->keys = NULL;
-    } else {
-        d->keys = (int*) malloc(sizeof(int) * c->keyCount);
-        memcpy(d->keys, c->keys, c->keyCount * sizeof(int));
-    }
-    d->keyCount = c->keyCount;
-    return d;
 }
 
 static void freeChest(Chest *c) {
     if (c == NULL) return;
-    free(c->keys);
     free(c);
 }
 
 static void printChest(const Chest* c) {
-    if (c == NULL) {
+    if (c == NULL || c->opened == 1) {
         printf("x");
     } else {
         printf("%3i:", c->lock);
-        for (int i = 0; i < c->keyCount; i += 1) {
-            printf("%3i, ", c->keys[i]);
+        for (int i = 0; i < MAX_KEY_COUNT; i += 1) {
+            if (c->keys[i] > 0) {
+                printf("%3i:%3i, ", i, c->keys[i]);
+            }
         }
     }
     printf("\n");
@@ -64,26 +52,20 @@ static void printChest(const Chest* c) {
 
 /* *** state *************************************************************** */
 typedef struct {
-    int *keys;
-    int keyCount;
+    int keys[MAX_KEY_COUNT];
     Chest **chests;
     int chestCount;
 } State;
 
 static State* newState() {
     State* s = (State*) malloc(sizeof(State));
-    s->keys = NULL;
-    s->keyCount = 0;
+    memset(s->keys, 0, sizeof(int) * MAX_KEY_COUNT);
     s->chests = NULL;
     s->chestCount = 0;
     return s;
 }
 
-//static State *duplicateState(const State* s) {
-//}
-//
 static void freeState(State *s) {
-    free(s->keys);
     for (int i = 0; i < s->chestCount; i += 1) {
         freeChest(s->chests[i]);
     }
@@ -93,8 +75,10 @@ static void freeState(State *s) {
 
 static void printState(const State* s) {
     printf("keys: ");
-    for (int i = 0; i < s->keyCount; i += 1) {
-        printf("%3i, ", s->keys[i]);
+    for (int i = 0; i < MAX_KEY_COUNT; i += 1) {
+        if (s->keys[i] > 0) {
+            printf("%3i:%3i, ", i, s->keys[i]);
+        }
     }
     printf("\n");
 
@@ -165,9 +149,10 @@ static State **casesFromInput(const char *fileName, int *caseCount) {
     for (int caseIndex = 0; caseIndex < *caseCount; caseIndex += 1) {
         State *s = cases[caseIndex] = newState();
 
+        int keyCount;
+
         // input line: keyCount chestCount
-        sscanf(lines[currentLine], "%i %i", &(s->keyCount), &(s->chestCount));
-        s->keys = (int*) malloc(sizeof(int) * s->keyCount);
+        sscanf(lines[currentLine], "%i %i", &keyCount, &(s->chestCount));
         s->chests = (Chest**) malloc(sizeof(Chest*) * s->chestCount);
         currentLine += 1;
 
@@ -175,39 +160,45 @@ static State **casesFromInput(const char *fileName, int *caseCount) {
         char *line = lines[currentLine];
         char *space = line;
         int i = 0;
+        int key;
         while ((space = strchr(line, ' ')) != NULL) {
-            sscanf(line, "%i", &(s->keys[i]));
+            sscanf(line, "%i", &key);
+            ASSERT(key > 0 && key < MAX_KEY_COUNT);
+            s->keys[key] += 1;
             line = space+1;
             i += 1;
         }
-        sscanf(line, "%i", &(s->keys[i]));
-        ASSERT(i == (s->keyCount-1));
-        currentLine += 1;
+        sscanf(line, "%i", &key);
+        ASSERT(key > 0 && key < MAX_KEY_COUNT);
+        s->keys[key] += 1;
 
-        qsort(s->keys, s->keyCount, sizeof(int), lessThanInt);
+        ASSERT(i == (keyCount-1));
+        currentLine += 1;
 
         // input lines chests
         for (int i = 0; i < s->chestCount; i += 1) {
             line = lines[currentLine];
             Chest *c = s->chests[i] = newChest();
 
-            sscanf(line, "%i %i", &(c->lock), &(c->keyCount));
+            int chestKeyCount;
+            sscanf(line, "%i %i", &(c->lock), &chestKeyCount);
 
-            if (c->keyCount != 0) {
-                c->keys = (int*) malloc(sizeof(int) * c->keyCount);
-
+            if (chestKeyCount > 0) {
                 line = strchr(strchr(line, ' ') + 1, ' ') + 1;
                 char *space = line;
                 int j = 0;
+                int chestKey;
                 while ((space = strchr(line, ' ')) != NULL) {
-                    sscanf(line, "%i", &(c->keys[j]));
+                    sscanf(line, "%i", &chestKey);
+                    ASSERT(chestKey > 0 && chestKey < MAX_KEY_COUNT);
+                    c->keys[chestKey] += 1;
                     line = space+1;
                     j += 1;
                 }
-                sscanf(line, "%i", &(c->keys[j]));
-                ASSERT(j == (c->keyCount-1));
-
-                qsort(c->keys, c->keyCount, sizeof(int), lessThanInt);
+                sscanf(line, "%i", &chestKey);
+                ASSERT(chestKey > 0 && chestKey < MAX_KEY_COUNT);
+                c->keys[chestKey] += 1;
+                ASSERT(j == chestKeyCount-1);
             }
 
             currentLine += 1;
@@ -220,102 +211,54 @@ static State **casesFromInput(const char *fileName, int *caseCount) {
 }
 
 /* *** helper ************************************************************** */
-static int findIntRecursive(const int *v, int begin, int end, int key);
-
-static int lessThanInt (const void *a_, const void *b_) {
-    int a = *((int*)a_);
-    int b = *((int*)b_);
-    if (a > b) { return 1; } else if (a < b) { return -1; } else { return 0; }
+static void addKeys(int to[MAX_KEY_COUNT], int from[MAX_KEY_COUNT]) {
+    for (int i = 0; i < MAX_KEY_COUNT; i += 1) {
+        to[i] += from[i];
+    }
 }
 
-/* returns -1 for not foudn or the first index of the searched element */
-static int findInt(const int *v, int vLen, int key) {
-    if (v == NULL) return -1;
-    return findIntRecursive(v, 0, vLen-1, key);
-}
-
-static int findIntRecursive(const int *v, int begin, int end, int key) {
-    if (begin > end) {
-        return -1;
-    }  else {
-        int m = (end-begin) / 2 ;
-        if (v[m] > key) {
-            return findIntRecursive(v, key, begin, m-1);
-        } else if (v[m] < key) {
-            return findIntRecursive(v, key, m+1, end);
-        } else {
-            return m;
-        }
+static void removeKeys(int to[MAX_KEY_COUNT], int from[MAX_KEY_COUNT]) {
+    for (int i = 0; i < MAX_KEY_COUNT; i += 1) {
+        to[i] -= from[i];
     }
 }
 
 /* *** work **************************************************************** */
-static State* openChest(State *s, int chestIndex, int keyIndex) {
+static void openChest(State *s, Chest *c) {
+    c->opened = 1;
+    s->keys[c->lock] -= 1;
+    addKeys(s->keys, c->keys);
+}
 
-    ASSERT(s->keyCount > 0);
+static void closeChest(State *s, Chest *c) {
+    c->opened = 0;
+    s->keys[c->lock] += 1;
+    removeKeys(s->keys, c->keys);
 
-    Chest *c = s->chests[chestIndex];
-
-    State *t = (State*) malloc(sizeof(State));
-    t->keyCount = s->keyCount - 1 + c->keyCount;
-
-    if (t->keyCount == 0) {
-        t->keys = NULL;
-    } else {
-        t->keys = (int*) malloc(sizeof(int) * t->keyCount);
-
-        if (keyIndex > 0 && keyIndex < s->keyCount-1) {
-            // copy left side
-            memcpy(t->keys, s->keys, keyIndex * sizeof(int));
-        }
-        if (keyIndex < s->keyCount-1) {
-            //copy right side
-            memcpy(&(t->keys[keyIndex]), &(s->keys[keyIndex+1]), (s->keyCount - (keyIndex+1)) * sizeof(int));
-        }
-
-        if (c->keyCount > 0) {
-            // copy chest keys
-            memcpy(&(t->keys[s->keyCount-1]), c->keys, c->keyCount * sizeof(int));
-        }
-
-        if (c->keyCount != 0 && s->keyCount-1 != 0) {
-            qsort(t->keys, t->keyCount, sizeof(int), lessThanInt);
-        }
+    for (int i = 0; i < MAX_KEY_COUNT; i += 1) {
+        ASSERT(s->keys[i] >= 0);
     }
-
-    t->chests = (Chest**) malloc(sizeof(Chest*) * s->chestCount);
-    t->chestCount = s->chestCount;
-    for (int i = 0; i < t->chestCount; i += 1) {
-        if (s->chests[i] == NULL || i == chestIndex) {
-            t->chests[i] = NULL;
-        } else {
-            t->chests[i] = duplicateChest(s->chests[i]);
-        }
-    }
-
-    return t;
 }
 
 static int solve(State *s, int *solution, int step) {
 
-    int allChestsNull = 1;
+    //printState(s);
+
+    int allChestsOpened = 1;
+    int ret;
 
     for (int i = 0; i < s->chestCount; i += 1) {
         Chest *c = s->chests[i];
 
-        allChestsNull &= (c == NULL);
+        allChestsOpened &= (c->opened == 1);
 
-        if (c == NULL) {
+        if (c->opened == 1 || s->keys[c->lock] == 0) {
             continue;
         }
 
-        int keyIndex;
-
-        if ((keyIndex = findInt(s->keys, s->keyCount, c->lock)) == -1) { continue; }
-
-        State *t = openChest(s, i, keyIndex);
-        int ret = solve(t, solution, step + 1);
-        freeState(t);
+        openChest(s, s->chests[i]);
+        ret = solve(s, solution, step + 1);
+        closeChest(s, s->chests[i]);
 
         if (ret == 1) {
             solution[step] = i;
@@ -325,10 +268,10 @@ static int solve(State *s, int *solution, int step) {
         }
     }
 
-    if (allChestsNull == 1) {
-        return 1;
+    if (allChestsOpened == 1) {
+        return 1; // correct solution
     } else {
-        return 0;
+        return 0; // impossible
     }
 }
 
@@ -342,7 +285,7 @@ int main(int argc, char **args) {
     State **cases = casesFromInput(inputFile, &caseCount);
 
     /* work */
-    //for (int i = 0; i < 1; i += 1) {
+    //for (int i = 2; i < 3; i += 1) {
     for (int i = 0; i < caseCount; i += 1) {
         int *solution = (int*) malloc(sizeof(int) * cases[i]->chestCount);
         int solutionLen = cases[i]->chestCount;
