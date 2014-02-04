@@ -274,8 +274,17 @@ static int solveRecursively(State *s, int *solution, int step) {
 
         // if we have only 1 key of this type left, and do not get another one with this chest,
         // and we need another one for another chest, then we cannot open this chest
+        // (wrong)
         if (s->keys[c->lock] == 1 && c->keys[c->lock] == 0 && s->neededKeys[c->lock] > 1) {
-            continue;
+            int noKeyAvail = 1;
+            for (int j = 0; j < s->chestCount; j += 1) {
+                if (s->chests[j]->opened == 0 && s->chests[j]->lock != c->lock) {
+                    noKeyAvail &= s->chests[j]->keys[c->lock] == 0;
+                }
+            }
+            if (noKeyAvail == 1) {
+                continue;
+            }
         }
 
         openChest(s, s->chests[i]);
