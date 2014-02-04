@@ -240,7 +240,7 @@ static void closeChest(State *s, Chest *c) {
     }
 }
 
-static int solve(State *s, int *solution, int step) {
+static int solveRecursively(State *s, int *solution, int step) {
 
     //printState(s);
 
@@ -257,7 +257,7 @@ static int solve(State *s, int *solution, int step) {
         }
 
         openChest(s, s->chests[i]);
-        ret = solve(s, solution, step + 1);
+        ret = solveRecursively(s, solution, step + 1);
         closeChest(s, s->chests[i]);
 
         if (ret == 1) {
@@ -273,6 +273,27 @@ static int solve(State *s, int *solution, int step) {
     } else {
         return 0; // impossible
     }
+}
+
+static int solve(State *s, int *solution, int step) {
+    for (int key = 1; key < MAX_KEY_COUNT; key += 1) {
+        int neededKeys = 0;
+        int availableKeys = s->keys[key];
+
+        for (int i = 0; i < s->chestCount; i += 1) {
+            if (s->chests[i]->lock == key) {
+                neededKeys += 1;
+            }
+            availableKeys += s->chests[i]->keys[key];
+        }
+
+        if (neededKeys > availableKeys) {
+            //printf("%d: needed: %d, avail: %d\n", key, neededKeys, availableKeys);
+            return 0;
+        }
+    }
+
+    return solveRecursively(s, solution, step);
 }
 
 /* ************************************************************************* */
