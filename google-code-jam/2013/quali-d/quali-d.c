@@ -305,9 +305,9 @@ static int solveRecursively(State *s, int *solution, int step) {
             continue;
         }
 
-        openChest(s, s->chests[i]);
+        openChest(s, c);
         ret = solveRecursively(s, solution, step + 1);
-        closeChest(s, s->chests[i]);
+        closeChest(s, c);
 
         if (ret == 1) {
             solution[step] = i;
