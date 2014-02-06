@@ -58,7 +58,6 @@ typedef struct {
     int simpleKeys[MAX_KEY_COUNT];
     Chest **chests;
     int chestCount;
-    int neededKeys[MAX_KEY_COUNT]; //keeps track of all locks that are still to be opened
 } State;
 
 static State* newState() {
@@ -67,7 +66,6 @@ static State* newState() {
     memset(s->simpleKeys, 0, sizeof(int) * MAX_KEY_COUNT);
     s->chests = NULL;
     s->chestCount = 0;
-    memset(s->neededKeys, 0, sizeof(int) * MAX_KEY_COUNT);
     return s;
 }
 
@@ -84,14 +82,6 @@ static void printState(const State* s) {
     for (int i = 0; i < MAX_KEY_COUNT; i += 1) {
         if (s->keys[i] > 0) {
             printf("%3i:%3i, ", i, s->keys[i]);
-        }
-    }
-    printf("\n");
-
-    printf("needed keys: ");
-    for (int i = 0; i < MAX_KEY_COUNT; i += 1) {
-        if (s->neededKeys[i] > 0) {
-            printf("%3i:%3i, ", i, s->neededKeys[i]);
         }
     }
     printf("\n");
@@ -196,7 +186,6 @@ static State **casesFromInput(const char *fileName, int *caseCount) {
 
             int chestKeyCount;
             sscanf(line, "%i %i", &(c->lock), &chestKeyCount);
-            s->neededKeys[c->lock] += 1;
 
             if (chestKeyCount > 0) {
                 line = strchr(strchr(line, ' ') + 1, ' ') + 1;
@@ -280,18 +269,15 @@ static int simpleSolve(State *s) {
 /* *** work **************************************************************** */
 static void openChest(State *s, Chest *c) {
     ASSERT(s->keys[c->lock] > 0);
-    ASSERT(s->neededKeys[c->lock] > 0);
 
     c->opened = 1;
     s->keys[c->lock] -= 1;
-    s->neededKeys[c->lock] -= 1;
     addKeys(s->keys, c->keys);
 }
 
 static void closeChest(State *s, Chest *c) {
     c->opened = 0;
     s->keys[c->lock] += 1;
-    s->neededKeys[c->lock] += 1;
     removeKeys(s->keys, c->keys);
 
     for (int i = 0; i < MAX_KEY_COUNT; i += 1) {
@@ -317,21 +303,6 @@ static int solveRecursively(State *s, int *solution, int step) {
 
         if (c->opened == 1 || s->keys[c->lock] == 0) {
             continue;
-        }
-
-        // if we have only 1 key of this type left, and do not get another one with this chest,
-        // and we need another one for another chest, then we cannot open this chest
-        // (wrong)
-        if (s->keys[c->lock] == 1 && c->keys[c->lock] == 0 && s->neededKeys[c->lock] > 1) {
-            int noKeyAvail = 1;
-            for (int j = 0; j < s->chestCount; j += 1) {
-                if (s->chests[j]->opened == 0 && s->chests[j]->lock != c->lock) {
-                    noKeyAvail &= s->chests[j]->keys[c->lock] == 0;
-                }
-            }
-            if (noKeyAvail == 1) {
-                continue;
-            }
         }
 
         openChest(s, s->chests[i]);
