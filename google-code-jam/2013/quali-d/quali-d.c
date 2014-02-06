@@ -19,6 +19,7 @@
 /* *** chest *************************************************************** */
 typedef struct {
     int opened;
+    int simpleOpened;
     int lock;
     int keys[MAX_KEY_COUNT];
 } Chest;
@@ -26,6 +27,7 @@ typedef struct {
 static Chest* newChest() {
     Chest *c = (Chest*) malloc(sizeof(Chest));
     c->opened = 0;
+    c->simpleOpened = 0;
     c->lock = -1;
     memset(c->keys, 0, sizeof(int) * MAX_KEY_COUNT);
     return c;
@@ -53,6 +55,7 @@ static void printChest(const Chest* c) {
 /* *** state *************************************************************** */
 typedef struct {
     int keys[MAX_KEY_COUNT];
+    int simpleKeys[MAX_KEY_COUNT];
     Chest **chests;
     int chestCount;
     int neededKeys[MAX_KEY_COUNT]; //keeps track of all locks that are still to be opened
@@ -61,6 +64,7 @@ typedef struct {
 static State* newState() {
     State* s = (State*) malloc(sizeof(State));
     memset(s->keys, 0, sizeof(int) * MAX_KEY_COUNT);
+    memset(s->simpleKeys, 0, sizeof(int) * MAX_KEY_COUNT);
     s->chests = NULL;
     s->chestCount = 0;
     memset(s->neededKeys, 0, sizeof(int) * MAX_KEY_COUNT);
@@ -234,6 +238,45 @@ static void removeKeys(int to[MAX_KEY_COUNT], int from[MAX_KEY_COUNT]) {
     }
 }
 
+/* *** work simple ********************************************************* */
+static void simpleResetState(State *s) {
+    memcpy(s->simpleKeys, s->keys, sizeof(int) * MAX_KEY_COUNT);
+    for (int i = 0; i < s->chestCount; i += 1) {
+        s->chests[i]->simpleOpened = s->chests[i]->opened;
+    }
+}
+
+static void simpleOpenChest(State *s, Chest *c) {
+    ASSERT(s->simpleKeys[c->lock] > 0);
+    c->simpleOpened = 1;
+    addKeys(s->simpleKeys, c->keys);
+}
+
+static int simpleSolve(State *s) {
+    simpleResetState(s);
+
+    int allChestsOpened = 1;
+
+    for (int i = 0; i < s->chestCount; i += 1) {
+        Chest *c = s->chests[i];
+
+        allChestsOpened &= (c->simpleOpened == 1);
+
+        if (c->simpleOpened == 0 && s->simpleKeys[c->lock] > 0) {
+            simpleOpenChest(s, c);
+            i = -1;
+            allChestsOpened = 1;
+        }
+    }
+
+
+    if (allChestsOpened == 1) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 /* *** work **************************************************************** */
 static void openChest(State *s, Chest *c) {
     ASSERT(s->keys[c->lock] > 0);
@@ -259,6 +302,10 @@ static void closeChest(State *s, Chest *c) {
 static int solveRecursively(State *s, int *solution, int step) {
 
     //printState(s);
+
+    if (simpleSolve(s) == 0) {
+        return 0;
+    }
 
     int allChestsOpened = 1;
     int ret;
