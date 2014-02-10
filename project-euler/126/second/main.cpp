@@ -37,22 +37,25 @@ static int cuboidCount(int wantedCubeCount) {
     int count = 0;
 
     for (int w = 1; w < wantedCubeCount; w += 1) {
-        for (int h = w; h < wantedCubeCount; h += 1) {
-            for (int d = h; d < wantedCubeCount; d += 1) {
+        for (int d = w; d < wantedCubeCount; d += 1) {
 
-                int c = 0;
+            int c = 0;
 
-                for(int layer = 1;; layer += 1) {
-                    c = cubeCountIncremental(w, h, d, layer, c);
+            for(int layer = 1;; layer += 1) {
+                c = cubeCountIncremental(w, 1, d, layer, c);
 
-                    if (c < wantedCubeCount) {
-                        continue;
-                    } else if (c > wantedCubeCount) {
-                        break;
-                    } else {
+                if (c <= wantedCubeCount) {
+
+                    int middleRing = ring(w, d, layer);
+
+                    if ((wantedCubeCount-c) % middleRing == 0 && (wantedCubeCount-c)/middleRing >= (d-1)) {
                         count += 1;
-                        break;
+                        continue;
                     }
+
+                    continue;
+                } else if (c > wantedCubeCount) {
+                    break;
                 }
             }
         }
