@@ -9,22 +9,28 @@ static int ring(int w, int d, int layer) {
     count += 2*w; // front, back
     count += 2*d; // left, right
     count += 4*(layer-1); //corners
-
     return count;
 }
 
 static int cubeCount(int w, int h, int d, int layer) {
     int count = 0;
-
     count += 2*w*d; // top, bottom area
-
     count += ring(w, d, layer)*h; // middlering
-
     for (int i = 1; i < layer; i += 1) { // rings from top to bottom
         count += 2*ring(w, d, i);
     }
-
     return count;
+}
+
+static int cubeCountIncremental(int w, int h, int d, int layer, int previous) {
+    if (layer == 1) {
+        return cubeCount(w, h, d, layer);
+    } else {
+        int count = previous;
+        count += (2-h)*ring(w, d, layer-1); // remove old middle ring and add the rings below and above the new middle
+        count += h*ring(w, d, layer); // add new middle ring
+        return count;
+    }
 }
 
 static int cuboidCount(int wantedCubeCount) {
@@ -34,19 +40,20 @@ static int cuboidCount(int wantedCubeCount) {
         for (int h = w; h < wantedCubeCount; h += 1) {
             for (int d = h; d < wantedCubeCount; d += 1) {
 
-                for(int layer = 1;; layer += 1) {
-                    int cubeCount_ = cubeCount(w, h, d, layer);
+                int c = 0;
 
-                    if (cubeCount_ < wantedCubeCount) {
+                for(int layer = 1;; layer += 1) {
+                    c = cubeCountIncremental(w, h, d, layer, c);
+
+                    if (c < wantedCubeCount) {
                         continue;
-                    } else if (cubeCount_ > wantedCubeCount) {
+                    } else if (c > wantedCubeCount) {
                         break;
                     } else {
                         count += 1;
                         break;
                     }
                 }
-
             }
         }
     }
