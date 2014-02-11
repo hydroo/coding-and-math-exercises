@@ -56,7 +56,7 @@ static bool isAbcHit(int a_, int b_, int c_, const QHash<int, QPair<QSet<int>, b
     }
 
     qint64 radical = 1;
-    foreach(int prime, factors) {
+    foreach(int prime, factors) { // this should better be precomputed for each a, b, c instead of this loop
         radical *= prime;
         if (radical >= c_) { // condition 4: rad(a*b*c) < c
             return false;
