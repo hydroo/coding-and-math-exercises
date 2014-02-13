@@ -87,30 +87,20 @@ static QSet<int> neighbors(int n) {
     int o = ringOffset(r+1) + 2 + corner*(r+1) + offsetFromCorner; // outer neighbor
     int i = ringOffset(r-1) + 2 + corner*(r-1) + offsetFromCorner; // inner neighbor
 
-    if (offsetFromCorner == 0) { // corner
-        b.insert(o    );
-        b.insert(o + 1);
+    if (p == 0) { // top corner
+        b.insert(          o          );
+        b.insert(          o + 1      );
+        b.insert(modInRing(o - 1, r+1));
+        b.insert(modInRing(n - 1, r  ));
+        b.insert(          i          );
         //b.insert(n + 1); // diff = 1 -> not prime
-        b.insert(i    );
-        if (corner == 0) {
-            b.insert(modInRing(o - 1, r+1));
-            b.insert(modInRing(n - 1, r  ));
-        } else {
-            b.insert(o - 1);
-            //b.insert(n - 1); // diff = 1 -> not prime
-        }
-    } else { // side
-        b.insert(o    );
-        b.insert(o + 1);
+    } else if (p == r*6 - 1) { // right to the top corner
+        b.insert(          o          );
+        b.insert(          o + 1      );
+        b.insert(          i - 1      );
+        b.insert(modInRing(n + 1, r  ));
+        b.insert(modInRing(i    , r-1));
         //b.insert(n - 1); // diff = 1 -> not prime
-        b.insert(i - 1);
-        if (corner == 5 && offsetFromCorner == r-1) {
-            b.insert(modInRing(n + 1, r  ));
-            b.insert(modInRing(i    , r-1));
-        } else {
-            //b.insert(n + 1); // diff = 1 -> not prime
-            b.insert(i);
-        }
     }
 
     return b;
@@ -160,36 +150,9 @@ static void test1() {
     assert(positionInRing(37) == 17);
     assert(positionInRing(38) == 0 );
 
-    assert(neighbors(8 ) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({20, 21,      2, 19, 37})))); // TopCorner
-    assert(neighbors(20) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({38, 39,      8, 37, 61}))));
-    assert(neighbors( 9) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({21, 22,      3,  2    })))); // TopLeftSide
-    assert(neighbors(21) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({39, 40,      9,  8    }))));
-    assert(neighbors(22) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({40, 41,     10,  9    }))));
-    assert(neighbors(10) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({22, 23, 24,      3    })))); // TopLeftCorner
-    assert(neighbors(23) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({41, 42, 43,     10    }))));
-    assert(neighbors(11) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({    24, 25,      4,  3})))); // LeftSide
-    assert(neighbors(24) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({    43, 44,     11, 10}))));
-    assert(neighbors(25) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({    44, 45,     12, 11}))));
-    assert(neighbors(12) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({    25, 26, 27,      4})))); // BottomLeftCorner
-    assert(neighbors(26) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({    45, 46, 47,     12}))));
-    assert(neighbors(13) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({ 4,     27, 28,      5})))); // BottomLeftSide
-    assert(neighbors(27) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({12,     47, 48,     13}))));
-    assert(neighbors(28) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({13,     48, 49,     14}))));
-    assert(neighbors(14) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({ 5,     28, 29, 30    })))); // BottomCorner
-    assert(neighbors(29) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({14,     49, 50, 51    }))));
-    assert(neighbors(15) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({ 6,  5,     30, 31    })))); // BottomRightSide
-    assert(neighbors(30) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({15, 14,     51, 52    }))));
-    assert(neighbors(31) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({16, 15,     52, 53    }))));
-    assert(neighbors(16) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({     6,     31, 32, 33})))); // BottomRightCorner
-    assert(neighbors(32) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({    16,     53, 54, 55}))));
-    assert(neighbors(17) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({     7,  6,     33, 34})))); // RightSide
-    assert(neighbors(33) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({    17, 16,     55, 56}))));
-    assert(neighbors(34) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({    18, 17,     56, 57}))));
-    assert(neighbors(18) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({36,      7,     34, 35})))); // TopRightCorner
-    assert(neighbors(35) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({59,     18,     57, 58}))));
-    assert(neighbors(19) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({37,  8,  2,  7,     36})))); // TopRightSide
-    assert(neighbors(36) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({60,     19, 18,     59}))));
-    assert(neighbors(37) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({61, 20,  8, 19,     60}))));
+    assert(neighbors(8 ) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({20, 21,  2, 19, 37}))));
+    assert(neighbors(20) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({38, 39,  8, 37, 61}))));
+    assert(neighbors(37) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({61, 20,  8, 19, 60}))));
 
     Primes *primes = newPrimes();
 
@@ -221,16 +184,22 @@ int main(int argc, char **args) {
     Primes *primes = newPrimes();
 
     int count = 2;
-    for (int n = 8; n < 100000000; n += 1) {
-        if (hasThreePrimeDifferences(n, primes)) {
+    int top   = 8;
+    int right = 19;
+    int r     = 2;
+    for (; top < 1300000000;) {
+        if (hasThreePrimeDifferences(top, primes)) {
             count += 1;
-
-            int r = ring(n);
-            int corner = positionInRing(n) / r;
-            int offsetFromCorner = positionInRing(n) % r;
-
-            qDebug() << count << n << ((offsetFromCorner == 0 && corner == 0) || (corner == 5 && offsetFromCorner == r-1));
+            qDebug() << count << top;
         }
+        if (hasThreePrimeDifferences(right, primes)) {
+            count += 1;
+            qDebug() << count << right;
+        }
+
+        top   += 6*r;
+        right += 6*(r+1);
+        r += 1;
     }
 
     deletePrimes(primes);
