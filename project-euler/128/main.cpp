@@ -9,27 +9,26 @@
 #include <QVector>
 
 /* *** helpers ***************************************************************/
-
 struct Primes {
-    int max;
-    QSet<int> s; // quick lookup
-    QList<int> l; // sorted
+    qint64 max;
+    QSet<qint64> s; // quick lookup
+    QList<qint64> l; // sorted
 };
 
-Primes* newPrimes() {
+static Primes* newPrimes() {
     Primes *ret = new Primes;
     ret->max = 2;
     return ret;
 }
 
-void deletePrimes(Primes *primes) {
+static void deletePrimes(Primes *primes) {
     delete primes;
 }
 
-static void updatePrimes(int n, Primes *primes) {
+static void updatePrimes(qint64 n, Primes *primes) {
     if (n < primes->max) return;
 
-    for (int i = primes->max; i <= n; i += 1) {
+    for (qint64 i = primes->max; i <= n; i += 1) {
         bool p = true;
         for (int j = 0; j < primes->l.size(); j += 1) {
             if (i % primes->l[j] == 0) {
@@ -46,46 +45,46 @@ static void updatePrimes(int n, Primes *primes) {
     primes->max = n;
 }
 
-static bool isPrime(int n, const Primes& primes) {
+static bool isPrime(qint64 n, const Primes& primes) {
     Q_ASSERT(n <= primes.max);
     return primes.s.contains(n);
 }
 
 /* *** ring ******************************************************************/
-static int ring(int n) {
+static int ring(qint64 n) {
     Q_ASSERT(n > 1);
-    int x = (n-2) / 6; // partition things into buckets of 6, ignoring n < 2
+    qint64 x = (n-2) / 6; // partition things into buckets of 6, ignoring n < 2
     return -0.5 + sqrt(0.25 + 2*x) + 1; // solution to the equation n = (1+x)*(x/2)
 }
 
 // starts with 0, not with 2
-static int ringOffset(int r) {
+static qint64 ringOffset(int r) {
     Q_ASSERT(r > 0);
     return 6*((1+(r-1))*((r-1)/2.0));
 }
 
-static int positionInRing(int n) {
+static qint64 positionInRing(qint64 n) {
     Q_ASSERT(n > 1);
     return n - ringOffset(ring(n)) - 2;
 }
 
-static int modInRing(int n, int r) {
+static qint64 modInRing(qint64 n, int r) {
     return (((n - ringOffset(r) - 2) + 6*r) % (6*r)) + ringOffset(r) + 2;
 }
 
-static QSet<int> neighbors(int n) {
+static QSet<qint64> neighbors(qint64 n) {
     Q_ASSERT(n > 7);
 
-    QSet<int> b;
+    QSet<qint64> b;
 
     int r  = ring(n);
-    int p  = positionInRing(n);
+    qint64 p  = positionInRing(n);
 
     int corner = p / r; // 0 = top, counterclockwise
-    int offsetFromCorner = p % r; //counterclockwise
+    qint64 offsetFromCorner = p % r; //counterclockwise
 
-    int o = ringOffset(r+1) + 2 + corner*(r+1) + offsetFromCorner; // outer neighbor
-    int i = ringOffset(r-1) + 2 + corner*(r-1) + offsetFromCorner; // inner neighbor
+    qint64 o = ringOffset(r+1) + 2 + corner*(r+1) + offsetFromCorner; // outer neighbor
+    qint64 i = ringOffset(r-1) + 2 + corner*(r-1) + offsetFromCorner; // inner neighbor
 
     if (p == 0) { // top corner
         b.insert(          o          );
@@ -106,17 +105,17 @@ static QSet<int> neighbors(int n) {
     return b;
 }
 
-static bool hasThreePrimeDifferences(int n, Primes *primes) {
+static bool hasThreePrimeDifferences(qint64 n, Primes *primes) {
     Q_ASSERT(n > 7);
 
-    int maxDiff = (ring(n))*6 + (ring(n)+1)*6 - 1; // exact
+    qint64 maxDiff = (ring(n))*6 + (ring(n)+1)*6 - 1; // exact
 
     updatePrimes(maxDiff, primes);
 
-    const QSet<int> b = neighbors(n);
+    const QSet<qint64> b = neighbors(n);
     int primeCount = 0;
-    foreach(int i, b) {
-        int diff = abs(i - n);
+    foreach(qint64 i, b) {
+        qint64 diff = llabs(i - n);
         Q_ASSERT(diff <= maxDiff);
         primeCount += isPrime(diff, *primes) == true ? 1 : 0;
     }
@@ -150,9 +149,9 @@ static void test1() {
     assert(positionInRing(37) == 17);
     assert(positionInRing(38) == 0 );
 
-    assert(neighbors(8 ) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({20, 21,  2, 19, 37}))));
-    assert(neighbors(20) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({38, 39,  8, 37, 61}))));
-    assert(neighbors(37) == QSet<int>::fromList(QList<int>::fromVector(QVector<int>::fromStdVector({61, 20,  8, 19, 60}))));
+    assert(neighbors(8 ) == QSet<qint64>::fromList(QList<qint64>::fromVector(QVector<qint64>::fromStdVector({20, 21,  2, 19, 37}))));
+    assert(neighbors(20) == QSet<qint64>::fromList(QList<qint64>::fromVector(QVector<qint64>::fromStdVector({38, 39,  8, 37, 61}))));
+    assert(neighbors(37) == QSet<qint64>::fromList(QList<qint64>::fromVector(QVector<qint64>::fromStdVector({61, 20,  8, 19, 60}))));
 
     Primes *primes = newPrimes();
 
@@ -183,11 +182,11 @@ int main(int argc, char **args) {
 
     Primes *primes = newPrimes();
 
-    int count = 2;
-    int top   = 8;
-    int right = 19;
-    int r     = 2;
-    for (; top < 1300000000;) {
+    int    count = 2;
+    qint64 top   = 8;
+    qint64 right = 19;
+    int    r     = 2;
+    for (; top < 20000000000LL;) {
         if (hasThreePrimeDifferences(top, primes)) {
             count += 1;
             qDebug() << count << top;
@@ -199,7 +198,7 @@ int main(int argc, char **args) {
 
         top   += 6*r;
         right += 6*(r+1);
-        r += 1;
+        r     += 1;
     }
 
     deletePrimes(primes);
