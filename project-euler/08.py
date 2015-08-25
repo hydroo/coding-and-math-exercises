@@ -4,8 +4,8 @@ a = "731671765313306249192251196744265747423553491949349698352031277450632623957
 
 prod = 0
 
-for i in range(len(a)-4) :
-	tmp = int(a[i])*int(a[i+1])*int(a[i+2])*int(a[i+3])*int(a[i+4])
+for i in range(len(a)-13) :
+	tmp = int(a[i])*int(a[i+1])*int(a[i+2])*int(a[i+3])*int(a[i+4])*int(a[i+5])*int(a[i+6])*int(a[i+7])*int(a[i+8])*int(a[i+9])*int(a[i+10])*int(a[i+11])*int(a[i+12])
 	if prod < tmp :
 		prod = tmp
 

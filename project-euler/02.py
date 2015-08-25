@@ -5,7 +5,7 @@ fibonacci = [1,2]
 
 while 1 :
 	newfibonacci = fibonacci[-1]+fibonacci[-2]
-	if newfibonacci > 1000000 :
+	if newfibonacci > 4000000 :
 		break
 	fibonacci.append(newfibonacci)	
 
