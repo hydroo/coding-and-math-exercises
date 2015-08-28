@@ -1,0 +1,86 @@
+x = (sqrt(a)-b) / c
+
+Drawing from Problem 137, I created a function to approximately solve AG(x) via the GNU multiprecision library and brute-forced the first 20 AG(x).
+
+I then saw that I can assume b = x+1, and c = 6 + (b-1)*2, so that I have exactly one triple (a, b, c) for each AG(x).
+
+(  a, b,  c) AG(x)
+( 20, 2,  8) 1
+( 49, 3, 10) 2
+( 88, 4, 12) 3
+(137, 5, 14) 4
+(196, 6, 16) 5
+
+I then noticed that a increases by 19, 29, 39, 49 on every step. Using this insight, I came up with the following algorithm which doesn't need to solve AG(x) anymore.
+
+[code=C/C++]
+    mpz_class agx  =  0;
+    mpz_class c    =  6;
+    mpz_class b    =  1;
+    mpz_class a    =  1;
+    mpz_class addA = 19;
+
+    int i = 1;
+    while (i <= 30) {
+
+        a  += addA;
+        b  += 1;
+        c  += 2;
+        agx += 1;
+
+        addA += 10;
+
+        if (isSquare(a)) {
+
+            qDebug() << i << a << b << c << " AF(x) = " << agx;
+
+            i += 1;
+        }
+    }
+[/code]
+
+This yields the first 20 nuggets.
+I then struggled for the longest time to see a relationship between nuggets. In Problem 137 the relationship between the differences between Nuggets could be seen. Here, not so much. Finally, I saw a pattern in the differences of the differences between the nuggets.
+
+Nugget AG(x)   diff diffdiff  diffdiff_F_k
+1,        2,    2,      2      3
+2,        5,    3,      1      1
+3,       21,   16,     13      7
+4,       42,   21,      5      5
+5,      152,  110,     89     11
+6,      296,  144,     34      9
+7,     1050,  754,    610     15
+8,     2037,  987,    233     13
+9,     7205, 5168,   4181     19
+
+The differences between differences are Fibonacci numbers.
+For every odd (index of the nugget, not value) nugget k decreases by 2. For every even nugget it increases by 6.
+
+This yields the following algorithm, which yields the first 30 nuggets.
+
+[code=C/C++]
+    auto F = initLazyFibonacci();
+
+    mpz_class agx    = 2;
+    s64 diffdiff_fib = 3;
+    mpz_class diff   = 2;
+
+    int i = 1;
+    while (i <= 30) {
+
+        qDebug() << i << agx << count;
+
+        if (i%2 == 1) {
+            diffdiff_fib -= 2;
+        } else {
+            diffdiff_fib += 6;
+        }
+
+        diff += lazyFibonacci(diffdiff_fib, &F);
+        agx += diff;
+
+        i += 1;
+    }
+[/code]
+
+I have no idea why it works. I didn't even try to find the generating function, since I already failed at it for Problem 137.
