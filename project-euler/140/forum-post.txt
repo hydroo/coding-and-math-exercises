@@ -2,7 +2,7 @@ x = (sqrt(a)-b) / c
 
 Drawing from Problem 137, I created a function to approximately solve AG(x) via the GNU multiprecision library and brute-forced the first 20 AG(x).
 
-I then saw that I can assume b = x+1, and c = 6 + (b-1)*2, so that I have exactly one triple (a, b, c) for each AG(x).
+I then saw that I can assume b = AG(x)+1, and c = 6 + (b-1)*2, so that I have exactly one triple (a, b, c) for each AG(x).
 
 (  a, b,  c) AG(x)
 ( 20, 2,  8) 1
