@@ -3,6 +3,7 @@
 #include <gmpxx.h>
 
 #include <QtDebug>
+#include <QTime>
 
 using s64 = int64_t;
 using f64 = double;
@@ -132,6 +133,7 @@ void testLazySecondOrderRecurrenceRelation();
 void test1();
 void testInputOutputCorrelation();
 void testInputOutputCorrelation2();
+void testPrintFibonacciNumbers();
 
 
 int main(int argc, char **args) {
@@ -142,6 +144,7 @@ int main(int argc, char **args) {
     //test1();
     testInputOutputCorrelation();
     //testInputOutputCorrelation2();
+    //testPrintFibonacciNumbers();
 
     return 0;
 }
@@ -232,6 +235,8 @@ void test1() {
 
 void testInputOutputCorrelation() {
 
+    QTime t; t.start();
+
     struct Nugget {
         mpz_class a, b, c, afx;
     };
@@ -260,7 +265,7 @@ void testInputOutputCorrelation() {
 
             const auto& n = nuggets.last();
 
-            qDebug() << i << a << b << c << " AF(x) = " << afx << " sqrt(a)" << squareRoot(a) << "| diff:" << (mpz_class) (a-n.a) << (mpz_class) (b-n.b) << (mpz_class) (c-n.c) << (mpz_class) (afx-n.afx);
+            qDebug() << int (t.elapsed() / 1000.0) << "s" << i << a << b << c << " AF(x) = " << afx << " sqrt(a)" << squareRoot(a) << "| diff:" << (mpz_class) (a-n.a) << (mpz_class) (b-n.b) << (mpz_class) (c-n.c) << (mpz_class) (afx-n.afx);
 
             nuggets << Nugget{a, b, c, afx};
 
@@ -277,6 +282,31 @@ void testInputOutputCorrelation() {
 }
 
 // Nuggets:
+//  1                    49          3          10  AF(x) =           2
+//  2                   196          6          16  AF(x) =           5
+//  3                  2500         22          48  AF(x) =          21
+//  4                  9409         43          90  AF(x) =          42
+//  5                117649        153         310  AF(x) =         152
+//  6                442225        297         598  AF(x) =         296
+//  7               5527201       1051        2106  AF(x) =        1050
+//  8              20775364       2038        4080  AF(x) =        2037
+//  9             259660996       7206       14416  AF(x) =        7205
+// 10             976000081      13971       27946  AF(x) =       13970
+// 11           12198539809      49393       98790  AF(x) =       49392
+// 12           45851228641      95761      191526  AF(x) =       95760
+// 13          573071710225     338547      677098  AF(x) =      338546
+// 14         2154031746244     656358     1312720  AF(x) =      656357
+// 15        26922171840964    2320438     4640880  AF(x) =     2320437
+// 16       101193640845025    4498747     8997498  AF(x) =     4498746
+// 17      1264769004815281   15904521    31809046  AF(x) =    15904520 takes ~ 14s
+// 18      4753947087970129   30834873    61669750  AF(x) =    30834872 takes ~ 28s
+// 19     59417221054477441  109011211   218022426  AF(x) =   109011210 takes ~100s
+// 20    223334319493751236  211345366   422690736  AF(x) =   211345365 takes ~200s
+// 21   2791344620555624644  747173958  1494347920  AF(x) =   747173957
+// 22  10491959069118338161 1448582691  2897165386  AF(x) =  1448582690
+// 23 131133779945059881025 5121206497 10242412998  AF(x) =  5121206496
+
+// Nuggets with diff:
 //  1                 49         3        10  AF(x) =          2, sqrt(a) 7         | diff:                 48         2         4         2
 //  2                196         6        16  AF(x) =          5, sqrt(a) 14        | diff:                147         3         6         3
 //  3               2500        22        48  AF(x) =         21, sqrt(a) 50        | diff:               2304        16        32        16
@@ -297,6 +327,9 @@ void testInputOutputCorrelation() {
 // 18   4753947087970129  30834873  61669750  AF(x) =   30834872, sqrt(a) 68948873  | diff:   3489178083154848  14930352  29860704  14930352
 // 19  59417221054477441 109011211 218022426  AF(x) =  109011210, sqrt(a) 243756479 | diff:  54663273966507312  78176338 156352676  78176338
 // 20 223334319493751236 211345366 422690736  AF(x) =  211345365, sqrt(a) 472582606 | diff: 163917098439273795 102334155 204668310 102334155
+// 21 2791344620555624644 747173958 1494347920  AF(x) =  747173957  sqrt(a) 1670731762 | diff: 2568010301061873408 535828592 1071657184 535828592
+// 22 10491959069118338161 1448582691 2897165386  AF(x) =  1448582690  sqrt(a) 3239129369 | diff: 7700614448562713517 701408733 1402817466 701408733
+// 23 131133779945059881025 5121206497 10242412998  AF(x) =  5121206496  sqrt(a) 11451365855 | diff: 120641820875941542864 3672623806 7345247612 3672623806
 
 //  1  AF(x) =          2, sqrt(a) 7
 //  2  AF(x) =          5, sqrt(a) 14         = SORR( 5)
@@ -319,6 +352,7 @@ void testInputOutputCorrelation() {
 // SORR( 21 ) =    31241 // SORR( 22 ) =    50549 // SORR( 23 ) =   81790 // SORR( 24 ) =  132339
 // SORR( 25 ) =   214129 // SORR( 26 ) =   346468 // SORR( 27 ) =  560597 // SORR( 28 ) =  907065
 
+// fibonacci numbers QMap((0, 0)(1, 1)(2, 1)(3, 2)(4, 3)(5, 5)(6, 8)(7, 13)(8, 21)(9, 34)(10, 55)(11, 89)(12, 144)(13, 233)(14, 377)(15, 610)(16, 987)(17, 1597)(18, 2584)(19, 4181)(20, 6765)(21, 10946)(22, 17711)(23, 28657)(24, 46368)(25, 75025)(26, 121393)(27, 196418)(28, 317811)(29, 514229)(30, 832040)(31, 1346269)(32, 2178309)(33, 3524578)(34, 5702887)(35, 9227465)(36, 14930352)(37, 24157817)(38, 39088169)(39, 63245986))
 void testInputOutputCorrelation2() { // yields sqrt(a) for even nuggets
     auto F = initLazySecondOrderRecurrenceRelation();
 
@@ -334,6 +368,15 @@ void testInputOutputCorrelation2() { // yields sqrt(a) for even nuggets
         qDebug() << i << sqrtA << 1 + (i/2)*4;
         i += 2;
     }
+}
+
+void testPrintFibonacciNumbers() {
+    QMap<s64, s64> F = {{0,0} , {1, 1}, {2, 1}};
+
+    for (int i = 3; i < 40; i += 1) {
+        F.insert(i, F[i-1] + F[i-2]);
+    }
+    qDebug() << "fibonacci numbers" << F;
 }
 
 // Nugget             a              sqrt(a)    sqrt(a) = SORR(k)
