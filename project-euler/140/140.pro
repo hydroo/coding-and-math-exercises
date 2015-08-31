@@ -11,4 +11,4 @@ QMAKE_CXXFLAGS += -g -std=c++14
 
 SOURCES += main.cpp
 
-LIBS += -lgmp -lgomp
+LIBS += -lgmp
