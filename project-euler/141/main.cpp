@@ -64,31 +64,47 @@ bool isGeometricProgression(s64 a1, s64 a2, s64 a3) {
     assert(a1 <= a2);
     assert(a2 <= a3);
 
-    f64 r1 = a2 / (f64) a1; // (k*(r^p+1)) / (k*(r^p  )) = r
-    f64 r2 = a3 / (f64) a2; // (k*(r^p+2)) / (k*(r^p+1)) = r
+    auto q1n = a2;
+    auto q1d = a1;
+    auto q2n = a3;
+    auto q2d = a2;
 
-    return fabs(r1 - r2) <= 0.0000001;
+    //if (q1n > 1000000000 || q1d > 1000000000 || q2n > 1000000000 || q2d > 1000000000) {// if we multiply too big numbers, s64 doesn't suffice
+    //    qDebug() << "Fatal: One is too large: " << q1n << q1d << q2n << q2d;
+    //    assert(false);
+    //}
+
+    auto q1n2 = q1n * q2d; // equalize denominators
+    auto q2n2 = q2n * q1d;
+
+    if (q1n2 < 0 || q2n2 < 0) {// if we multiply too big numbers, s64 doesn't suffice. (Above, alternative condition happens too fast)
+        qDebug() << "Fatal: Integeroverflow: " << q1n << q1d << q2n << q2d << " -> " << q1n2 << q2n2;
+        assert(false);
+    }
+
+    return q1n2 == q2n2;
 }
 
 void test1();
+void test2();
 
 int main(int argc, char **args) {
     Q_UNUSED(argc); Q_UNUSED(args);
 
     test1();
+    test2();
 
     return 0;
 }
 
 void test1() {
-    qDebug() << "Warning: Results have to be verified. False positives are possible.";
-    qDebug() << QString("%1 = %2 * %3 + %4, %5").arg("  n").arg("  q").arg("  d").arg("  r").arg("hit");
-    for (s64 n = 1; n < 300; n += 1) {
+    qDebug() << QString("%1 = %2 * %3 + %4").arg("  n").arg("  q").arg("  d").arg("  r");
+    for (s64 n = 1; n <= 1000; n += 1) {
         for (s64 d = 1; d <= squareRootFloor(n); d += 1) {
             s64 q = n/d;
             s64 r = n - q*d;
 
-            if (r == 0) { continue; } // 0 is not part of a geometric progression unless all terms are 0
+            // if (r == 0) { continue; } // 0 is not part of a geometric progression unless all terms are 0
 
             assert(q >= d);
             assert(d >= r);
@@ -97,7 +113,7 @@ void test1() {
             bool nHasGeometricProgression = isGeometricProgression(r, d, q);
 
             if (nHasGeometricProgression) {
-                qDebug() << QString("%1 = %2 * %3 + %4, %5").arg(n, 3).arg(q, 3).arg(d, 3).arg(r, 3).arg(nHasGeometricProgression ? 'x' : ' ');
+                qDebug() << QString("%1 = %2 * %3 + %4").arg(n, 3).arg(q, 3).arg(d, 3).arg(r, 3);
             }
         }
     }
@@ -120,3 +136,42 @@ void test1() {
 // 254 =  25 *  10 +   4
 // 258 =  32 *   8 +   2
 // 294 =  24 *  12 +   6
+
+void test2() {
+    qDebug() << QString("%1 = %2 * %3 + %4, %5").arg("         n").arg("    q").arg("    d").arg("    r").arg("       sum");
+    s64 sum = 0;
+    s64 maxN = squareRootFloor(100000000);
+    for (s64 n = 1; n <= maxN; n += 1) {
+        s64 nn = n*n;
+        for (s64 d = 1; d <= n; d += 1) {
+            s64 q = nn/d;
+            s64 r = nn - q*d;
+
+            // if (r == 0) { continue; } // 0 is not part of a geometric progression unless all terms are 0
+
+            assert(q >= d);
+            assert(d >= r);
+
+            //bool nHasGeometricProgression = isGeometricProgressionSearch(r, d, q, 10, nullptr);
+            bool nHasGeometricProgression = isGeometricProgression(r, d, q);
+
+            if (nHasGeometricProgression) {
+                sum += nn;
+                qDebug() << QString("%1 = %2 * %3 + %4, %5").arg(nn, 10).arg(q, 5).arg(d, 5).arg(r, 5).arg(sum, 10);
+            }
+        }
+    }
+}
+
+//        n =     q *     d +     r,        sum                                  n                q               d                  r
+//        9 =     4 *     2 +     1,          9                                3 3,             2 2,              2,                 1
+//    10404 =   144 *    72 +    36,      10413,                     2 2 3 3 17 17,     2 2 2 2 3 3,      2 2 2 3 3,           2 2 3 3
+//    16900 =   225 *    75 +    25,      27313,                     2 2 5 5 13 13,         3 3 5 5,          3 5 5,               5 5
+//    97344 =  1058 *    92 +     8,     124657,             2 2 2 2 2 2 3 3 13 13,         2 23 23,         2 2 23,             2 2 2
+//   576081 =  1600 *   360 +    81,     700738,                   3 3 11 11 23 23, 2 2 2 2 2 2 5 5,    2 2 2 3 3 5,           3 3 3 3
+//  6230016 =  4232 *  1472 +   512,    6930754, 2 2 2 2 2 2 2 2 2 2 2 2 3 3 13 13,     2 2 2 23 23, 2 2 2 2 2 2 23, 2 2 2 2 2 2 2 2 2
+//  7322436 =  3025 *  2420 +  1936,   14253190
+// 12006225 =  4900 *  2450 +  1225,   26259415
+// 36869184 =  6400 *  5760 +  5184,   63128599
+// 37344321 =  7056 *  5292 +  3969,  100472920
+// 70963776 =  9522 *  7452 +  5832,  171436696
