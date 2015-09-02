@@ -25,38 +25,49 @@ struct GeometricProgressionParameters { // k*(rn/rd)^p, k*(rn/rd)^(p+1), k*(rn/r
     s64 k, rn, rd, p;
 };
 
-bool isGeometricProgressionSearch(s64 a1, s64 a2, s64 a3, s64 maxSearchSpace, QList<GeometricProgressionParameters>* progressions) {
+// // this is crap isGeometricProgression() should be better
+// bool isGeometricProgressionSearch(s64 a1, s64 a2, s64 a3, s64 maxSearchSpace, QList<GeometricProgressionParameters>* progressions) {
+//     assert(a1 <= a2);
+//     assert(a2 <= a3);
+// 
+//     if (progressions != nullptr) { progressions->clear(); }
+// 
+//     bool ret = false;
+// 
+//     for (s64 k = 0; k <= maxSearchSpace; k += 1) {
+//         for (s64 rn = 1; rn <= maxSearchSpace; rn += 1) {
+//             for (s64 rd = 1; rd <= maxSearchSpace; rd += 1) {
+//                 for (s64 p = 0; p <= maxSearchSpace; p += 1) {
+// 
+//                     f64 b1 = k*pow(((f64) rn / (f64) rd), p  );
+//                     f64 b2 = k*pow(((f64) rn / (f64) rd), p+1);
+//                     f64 b3 = k*pow(((f64) rn / (f64) rd), p+2);
+// 
+//                     if (fabs(a1 - b1) <= 0.0000001 && fabs(a2 - b2) <= 0.0000001 && fabs(a3 - b3) <= 0.0000001) {
+//                         //qDebug() << a1 << a2 << a3 << b1 << b2 << b3 << fabs(a1 - b1) << fabs(a2 - b2) << fabs(a3 - b3);
+//                         if (progressions != nullptr) {
+//                             progressions->append(GeometricProgressionParameters{k, rn, rd, p});
+//                             ret = true;
+//                         } else { // return immediatelly when are not interested in the parameters
+//                             return true;
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// 
+//     return ret;
+// }
+
+bool isGeometricProgression(s64 a1, s64 a2, s64 a3) {
     assert(a1 <= a2);
     assert(a2 <= a3);
 
-    if (progressions != nullptr) { progressions->clear(); }
+    f64 r1 = a2 / (f64) a1; // (k*(r^p+1)) / (k*(r^p  )) = r
+    f64 r2 = a3 / (f64) a2; // (k*(r^p+2)) / (k*(r^p+1)) = r
 
-    bool ret = false;
-
-    for (s64 k = 0; k <= maxSearchSpace; k += 1) {
-        for (s64 rn = 1; rn <= maxSearchSpace; rn += 1) {
-            for (s64 rd = 1; rd <= maxSearchSpace; rd += 1) {
-                for (s64 p = 0; p <= maxSearchSpace; p += 1) {
-
-                    f64 b1 = k*pow(((double) rn / (double) rd), p  );
-                    f64 b2 = k*pow(((double) rn / (double) rd), p+1);
-                    f64 b3 = k*pow(((double) rn / (double) rd), p+2);
-
-                    if (fabs(a1 - b1) <= 0.0000001 && fabs(a2 - b2) <= 0.0000001 && fabs(a3 - b3) <= 0.0000001) {
-                        //qDebug() << a1 << a2 << a3 << b1 << b2 << b3 << fabs(a1 - b1) << fabs(a2 - b2) << fabs(a3 - b3);
-                        if (progressions != nullptr) {
-                            progressions->append(GeometricProgressionParameters{k, rn, rd, p});
-                            ret = true;
-                        } else { // return immediatelly when are not interested in the parameters
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return ret;
+    return fabs(r1 - r2) <= 0.0000001;
 }
 
 void test1();
@@ -82,10 +93,10 @@ void test1() {
             assert(q >= d);
             assert(d >= r);
 
-            bool nHasGeometricProgression = isGeometricProgressionSearch(r, d, q, 10, nullptr);
+            //bool nHasGeometricProgression = isGeometricProgressionSearch(r, d, q, 10, nullptr);
+            bool nHasGeometricProgression = isGeometricProgression(r, d, q);
 
             if (nHasGeometricProgression) {
-
                 qDebug() << QString("%1 = %2 * %3 + %4, %5").arg(n, 3).arg(q, 3).arg(d, 3).arg(r, 3).arg(nHasGeometricProgression ? 'x' : ' ');
             }
         }
