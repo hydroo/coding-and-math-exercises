@@ -82,6 +82,7 @@ QList<s64> primeFactors(s64 n, Primes* P) {
 
 void testDivisors();
 void testPrimeFactors();
+void bug1();
 void test1();
 
 int main() {
@@ -89,7 +90,9 @@ int main() {
     testDivisors();
     testPrimeFactors();
 
-    test1();
+    bug1();
+
+    //test1();
 
     return 0;
 }
@@ -117,9 +120,38 @@ void testPrimeFactors() {
     assert(primeFactors(30, &P) == QList<s64>({2, 3, 5}));
 }
 
+void bug1() {
+
+    s64 n = 1290;
+
+    auto P = initPrimes();
+    updatePrimes(n + 1, &P);
+
+    auto divs = divisors(n);
+    qDebug() << "divisors:" << divs;
+    foreach (s64 d, divs) {
+        if (isPrime(d + n / d, P)) {
+            qDebug() << "  " << n << ": " << d << "+" << n << "/" << d << "=" << d + n / d << "prime";
+        } else {
+            qDebug() << "  " << n << ": " << d << "+" << n << "/" << d << "=" << d + n / d << "no prime";
+        }
+    }
+
+    auto prims = primeFactors(n, &P);
+    qDebug() << "prime factors:" << prims;
+    foreach (s64 d, prims) {
+        if (isPrime(d + n / d, P)) {
+            qDebug() << "  " << n << ": " << d << "+" << n << "/" << d << "=" << d + n / d << "prime";
+        } else {
+            qDebug() << "  " << n << ": " << d << "+" << n << "/" << d << "=" << d + n / d << "no prime";
+        }
+    }
+
+}
+
 void test1() {
 
-    s64 maxN = 1000;
+    s64 maxN = 1400;
     s64 sum = 0;
 
     auto P = initPrimes();
