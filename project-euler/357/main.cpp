@@ -61,10 +61,20 @@ QList<s64> primeFactors(s64 n, Primes* P) {
 
     //updatePrimes(n, P); // we do that manually somewhere else
 
-    for (int i = 0; i < P->l.size() && P->l[i] <= n; i += 1) {
-        if (n % P->l[i] == 0) {
-            ret << P->l[i];
+    int i = 0;
+    while (i < P->l.size() && P->l[i] <= n) {
+        auto p = P->l[i];
+        if (n % p == 0) {
+            ret << p;
+            while (n % p == 0) {
+                n /= p;
+            }
         }
+        i += 1;
+    }
+
+    if (n > 1) {
+        ret << n;
     }
 
     return ret;
@@ -96,7 +106,7 @@ void testDivisors() {
 
 void testPrimeFactors() {
     auto P = initPrimes();
-    updatePrimes(29, &P);
+    updatePrimes(30, &P);
     assert(primeFactors( 1, &P) == QList<s64>({}));
     assert(primeFactors( 2, &P) == QList<s64>({2}));
     assert(primeFactors( 3, &P) == QList<s64>({3}));
@@ -104,11 +114,12 @@ void testPrimeFactors() {
     assert(primeFactors(13, &P) == QList<s64>({13}));
     assert(primeFactors(28, &P) == QList<s64>({2, 7}));
     assert(primeFactors(29, &P) == QList<s64>({29}));
+    assert(primeFactors(30, &P) == QList<s64>({2, 3, 5}));
 }
 
 void test1() {
 
-    s64 maxN = 1000000;
+    s64 maxN = 1000;
     s64 sum = 0;
 
     auto P = initPrimes();
