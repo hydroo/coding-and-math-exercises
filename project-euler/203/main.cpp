@@ -1,27 +1,6 @@
-#include <cassert>
-#include <cmath>
+#include "../lib.hpp"
 
 #include <QSet>
-#include <QtDebug>
-
-using s64 = int64_t;
-
-using namespace std;
-
-bool isPrime(s64 n) {
-    if (n == 2 ) {
-        return true;
-    } else if (n % 2 == 0 || n == 1) {
-        return false;
-    }
-    s64 sqrtn = floor(sqrt(n));
-    for (int d = 3; d <= sqrtn; d += 2) {
-        if (n % 3 == 0) {
-            return false;
-        }
-    }
-    return true;
-}
 
 bool isSquareFree(s64 n) {
     s64 sqrtn = floor(sqrt(n));
@@ -33,18 +12,8 @@ bool isSquareFree(s64 n) {
     return true;
 }
 
-void testIsPrime();
-void doIt();
 
 int main() {
-
-    testIsPrime();
-    doIt();
-
-    return 0;
-}
-
-void doIt() {
 
     int max = (51-1);
 
@@ -83,27 +52,6 @@ void doIt() {
         }
     }
     qDebug() << "sum (solution):" << sum;
-}
 
-void testIsPrime() {
-    assert(isPrime( 1) == false);
-    assert(isPrime( 2) == true );
-    assert(isPrime( 3) == true );
-    assert(isPrime( 4) == false);
-    assert(isPrime( 5) == true );
-    assert(isPrime( 6) == false);
-    assert(isPrime( 7) == true );
-    assert(isPrime( 8) == false);
-    assert(isPrime( 9) == false);
-    assert(isPrime(10) == false);
-    assert(isPrime(11) == true );
-    assert(isPrime(12) == false);
-    assert(isPrime(13) == true );
-    assert(isPrime(14) == false);
-    assert(isPrime(15) == false);
-    assert(isPrime(16) == false);
-    assert(isPrime(17) == true );
-    assert(isPrime(18) == false);
-    assert(isPrime(19) == true );
-    assert(isPrime(20) == false);
+    return 0;
 }
