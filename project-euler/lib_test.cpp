@@ -1,9 +1,11 @@
 #include "lib.hpp"
 
 void testIsPrime();
+void testPrimesToAtLeast();
 
 int main() {
     testIsPrime();
+    testPrimesToAtLeast();
     return 0;
 }
 
@@ -28,4 +30,10 @@ void testIsPrime() {
     assert(isPrime(18) == false);
     assert(isPrime(19) == true );
     assert(isPrime(20) == false);
+}
+
+void testPrimesToAtLeast() {
+    QVector<s64> p;
+    primesToAtLeast(20, &p);
+    assert((p == QVector<s64>{2, 3, 5, 7, 11, 13, 17, 19, 23}));
 }

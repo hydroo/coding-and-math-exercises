@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cmath>
 
+#include <QVector>
+
 #include <QtDebug>
 
 using s64 = int64_t;
@@ -22,3 +24,33 @@ bool isPrime(s64 n) {
     return true;
 }
 
+void primesToAtLeast(s64 n, QVector<s64> *primes) {
+    *primes = {2, 3};
+    auto newPrime = primes->last() + 2;
+    auto newPrimeSqrt = floor(sqrt(newPrime));
+
+    while (true) {
+        bool isPrime = true;
+        foreach (s64 p, *primes) {
+            if (p > newPrimeSqrt) break;
+            if (newPrime % p == 0) {
+                isPrime = false;
+                break;
+            }
+        }
+        if (isPrime == true) {
+            primes->append(newPrime);
+            if (newPrime < n) {
+                newPrime += 2;
+                newPrimeSqrt = floor(sqrt(newPrime));
+                continue;
+            } else {
+                break;
+            }
+        } else {
+            newPrime += 2;
+            newPrimeSqrt = floor(sqrt(newPrime));
+            continue;
+        }
+    }
+}
