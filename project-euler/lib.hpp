@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cmath>
 
+#include <functional>
+
 #include <QVector>
 
 #include <QtDebug>
