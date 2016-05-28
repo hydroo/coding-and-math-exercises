@@ -54,3 +54,13 @@ void primesToAtLeast(s64 n, QVector<s64> *primes) {
         }
     }
 }
+
+s64 gcd(s64 a, s64 b) {
+    s64 t;
+    while (b != 0) {
+        t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
+}
