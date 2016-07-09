@@ -2,6 +2,9 @@
 #include <cmath>
 
 #include <functional>
+#include <sstream>
+
+#include <gmpxx.h>
 
 #include <QVector>
 
@@ -65,4 +68,15 @@ s64 gcd(s64 a, s64 b) {
         a = t;
     }
     return a;
+}
+
+#include <iostream>
+
+QDebug operator<<(QDebug d, const mpz_class& a) {
+    d.nospace();
+    d.noquote();
+    stringstream s;
+    s << a;
+    d << QString::fromStdString(s.str());
+    return d.resetFormat();
 }
