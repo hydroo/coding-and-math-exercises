@@ -82,3 +82,12 @@ QDebug operator<<(QDebug d, const mpz_class& a) {
     d << QString::fromStdString(s.str());
     return d.resetFormat();
 }
+
+QDebug operator<<(QDebug d, const mpf_class& f) {
+    d.nospace();
+    d.noquote();
+    stringstream s;
+    s << f;
+    d << QString::fromStdString(s.str());
+    return d.resetFormat();
+}
