@@ -1,0 +1,48 @@
+1M straightforward:
+2m53.284s
+
+1M 4 threads:
+#pragma omp parallel for reduction(+:sum)
+1m19.034s
+
+dynamic, 1 was bad
+code improvement, a lot fewer primality checks
+
+4M 4 threads:
+#pragma omp parallel for reduction(+:sum) schedule(static, 10000)
+15m30.653s
+
+precalculate primes
+
+4M 4 threads:
+2m7.323s
+
+i has to be a multiple of 10. Found by looking at intermediate results with fewer i*i+x checks.
+
+4M 4 threads:
+0m43.604s
+
+10M 4 threads:
+5m20.085s
+
+iterate primes and then, foreach prime: check a, b, c, d, e, f
+
+40M 4 threads:
+0m20.315s
+
+150M 4 threads:
+2m2.402s
+
+Numbers:
+10         = 2 5
+315410     = 2 5 31541
+927070     = 2 5 92707
+2525870    = 2 5 229 1103
+8146100    = 2 2 5 5 29 53 53
+16755190   = 2 5 31 54049
+39313460   = 2 2 5 1965673
+97387280
+121288430
+119571820
+130116970
+139985660
