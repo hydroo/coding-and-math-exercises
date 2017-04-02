@@ -23,7 +23,7 @@ bool isPrime(s64 n) {
     } else if (n % 2 == 0 || n == 1) {
         return false;
     }
-    s64 sqrtn = floor(sqrt(n));
+    s64 sqrtn = (s64) floor(sqrt(n));
     for (s64 d = 3; d <= sqrtn; d += 2) {
         if (n % d == 0) {
             return false;
