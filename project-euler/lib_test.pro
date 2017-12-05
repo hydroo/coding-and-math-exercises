@@ -10,3 +10,5 @@ QMAKE_LINK = clang++
 QMAKE_CXXFLAGS += -Wall -Wextra -std=c++14
 
 SOURCES += lib_test.cpp
+
+LIBS += -lgmp -lgmpxx
