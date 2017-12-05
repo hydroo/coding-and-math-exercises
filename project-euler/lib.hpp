@@ -102,6 +102,14 @@ s64 gcd(s64 a, s64 b) {
     return a;
 }
 
+s64 factorial(s64 n) {
+    s64 f = 1;
+    for (s64 i = 1; i <= n; i += 1) {
+        f = f * i;
+    }
+    return f;
+}
+
 QDebug operator<<(QDebug d, const mpz_class& a) {
     d.nospace();
     d.noquote();
