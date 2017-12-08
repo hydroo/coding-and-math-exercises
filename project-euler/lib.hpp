@@ -127,3 +127,20 @@ QDebug operator<<(QDebug d, const mpf_class& f) {
     d << QString::fromStdString(s.str());
     return d.resetFormat();
 }
+
+template<typename T, size_t length>
+QDebug operator<<(QDebug d, const std::array<T, length>& a) {
+    d.nospace();
+    d.noquote();
+
+    d << '[';
+    for (int i = 0; i < ((int)length) - 1; i += 1) {
+        d << a[i] << ", ";
+    }
+    if (a.size() > 0) {
+        d << a.back();
+    }
+    d << ']';
+
+    return d.resetFormat();
+}
