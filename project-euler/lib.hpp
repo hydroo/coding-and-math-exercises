@@ -8,6 +8,7 @@
 
 #include <gmpxx.h>
 
+#include <QBitArray>
 #include <QVector>
 
 #include <QtDebug>
@@ -34,6 +35,9 @@ bool isPrime(s64 n) {
 }
 
 void primesToAtLeast(s64 n, QVector<s64> *primes) {
+
+    qDebug() << QString("%1 is deprecated. Use primesTo() instead.").arg(__func__);
+
     *primes = {2, 3};
     auto newPrime = primes->last() + 2;
     auto newPrimeSqrt = floor(sqrt(newPrime));
@@ -62,6 +66,28 @@ void primesToAtLeast(s64 n, QVector<s64> *primes) {
             continue;
         }
     }
+}
+
+QVector<s64> primesTo(s64 n, QBitArray* bits = nullptr) {
+
+    QVector<s64> primes;
+
+    QBitArray bits_;
+    if (bits == nullptr) {
+        bits = &bits_;
+    }
+    *bits = QBitArray(n, true);
+
+    for (int i = 2; i < bits->size(); i += 1) {
+        if (bits->at(i) == true) {
+            primes.append(i);
+            for (int j = i+i; j < bits->size(); j += i) {
+                bits->setBit(j, false);
+            }
+        }
+    }
+
+    return primes;
 }
 
 bool isPrime(s64 n, const QVector<s64>& primes) {

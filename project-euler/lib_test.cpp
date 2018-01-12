@@ -2,12 +2,14 @@
 
 void testIsPrime();
 void testPrimesToAtLeast();
+void testPrimesTo();
 void testGcd();
 void testFactorial();
 
 int main() {
     testIsPrime();
     testPrimesToAtLeast();
+    testPrimesTo();
     testGcd();
     testFactorial();
     return 0;
@@ -40,6 +42,11 @@ void testPrimesToAtLeast() {
     QVector<s64> p;
     primesToAtLeast(20, &p);
     assert((p == QVector<s64>{2, 3, 5, 7, 11, 13, 17, 19, 23}));
+}
+
+void testPrimesTo() {
+    QVector<s64> p = primesTo(20);
+    assert((p == QVector<s64>{2, 3, 5, 7, 11, 13, 17, 19}));
 }
 
 void testGcd() {
