@@ -38,7 +38,7 @@ bool isPrime(s64 n) {
 
 void primesToAtLeast(s64 n, QVector<s64> *primes) {
 
-    qDebug() << QString("%1 is deprecated. Use primesTo() instead.").arg(__func__);
+    qDebug().noquote() << QString("%1 is deprecated. Use primesTo() instead.").arg(__func__);
 
     *primes = {2, 3};
     auto newPrime = primes->last() + 2;
