@@ -130,6 +130,41 @@ s64 gcd(s64 a, s64 b) {
     return a;
 }
 
+s64 extendedGcd(s64 a, s64 b, s64 *amul, s64 *bmul) {
+
+    s64 amul_, bmul_;
+    if (amul == nullptr) {
+        amul = &amul_;
+    }
+    if (bmul == nullptr) {
+        bmul = &bmul_;
+    }
+
+    if (a > b) {
+        std::swap(a, b);
+        std::swap(amul, bmul);
+    }
+
+    std::function<s64(s64, s64, s64*, s64*)> recurse = [&recurse](s64 a, s64 b, s64 *amul, s64 *bmul) -> s64 {
+
+        if (b % a == 0) {
+            *bmul = 0;
+            *amul = 1;
+            return a;
+        }
+
+        s64 ret = recurse(b % a, a, amul, bmul);
+
+        s64 t = *bmul;
+        *bmul = *amul;
+        *amul = t + *amul * -(b/a);
+
+        return ret;
+    };
+
+    return recurse(a, b, amul, bmul);
+}
+
 s64 factorial(s64 n) {
     s64 f = 1;
     for (s64 i = 1; i <= n; i += 1) {

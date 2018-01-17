@@ -4,6 +4,7 @@ void testIsPrime();
 void testPrimesToAtLeast();
 void testPrimesTo();
 void testGcd();
+void testExtendedGcd();
 void testFactorial();
 
 int main() {
@@ -11,6 +12,7 @@ int main() {
     testPrimesToAtLeast();
     testPrimesTo();
     testGcd();
+    testExtendedGcd();
     testFactorial();
     return 0;
 }
@@ -58,6 +60,18 @@ void testGcd() {
     assert(gcd(  3,   7) ==   1);
     assert(gcd(113, 107) ==   1);
     assert(gcd( 30,   6) ==   6);
+}
+
+void testExtendedGcd() {
+    for (int a = 1; a < 30; a += 1) {
+        for (int b = 1; b < 30; b += 1) {
+            s64 amul, bmul;
+            s64 g1 = gcd(a, b);
+            s64 g2 = extendedGcd(a, b, &amul, &bmul);
+            assert(g1 == g2);
+            assert(g1 == a*amul + b*bmul);
+        }
+    }
 }
 
 void testFactorial() {
