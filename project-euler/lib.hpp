@@ -207,3 +207,20 @@ QDebug operator<<(QDebug d, const std::array<T, length>& a) {
 
     return d.resetFormat();
 }
+
+template<>
+QDebug operator<<(QDebug d, const std::vector<bool>& v) {
+    d.nospace();
+    d.noquote();
+
+    d << '[';
+    for (int i = 0; i < ((int)v.size()) - 1; i += 1) {
+        d << (v[i] == true ? 1 : 0);
+    }
+    if (v.size() > 0) {
+        d << (v.back() == true ? 1 : 0);
+    }
+    d << ']';
+
+    return d.resetFormat();
+}
