@@ -6,6 +6,7 @@ void test1();
 void testNumberBitMask();
 void testDoubleBits();
 void test2();
+void test3();
 
 int main(int argc, char **args) {
     (void) argc; (void) args;
@@ -13,7 +14,8 @@ int main(int argc, char **args) {
     // test1();
     // testNumberBitMask();
     // testDoubleBits();
-    test2();
+    // test2();
+    test3();
 
     return 0;
 }
@@ -188,7 +190,7 @@ s64 f2(mpz_class n) {
         s64 sum = recurse(v, bit-2);
 
         if (v[bit] == false) {
-            // assert(v[bit+1] == false);
+            assert(v[bit+1] == false);
 
             if (v[bit-2] == true) {
                 std::vector<bool> v2 = v;
@@ -211,7 +213,6 @@ s64 f2(mpz_class n) {
         }
 
         return sum;
-
     };
 
     return recurse(bits, bits.size()-2);
@@ -219,20 +220,21 @@ s64 f2(mpz_class n) {
 
 void test2() {
     const s64 min  = 1;
-    const s64 max  = 1000;
+    const s64 max  = 100;
     const s64 step = 1;
     const int printWidth = (int) ceil(log10(max + 1));
 
     for (s64 n = min; n <= max; n += step) {
         s64 c1 = f(n);
         s64 c2 = f2(n);
-        // qDebug().noquote() << QString("f(%1) = %2 %3 %4").arg(n, printWidth).arg(c1, printWidth*2).arg(c1 == c2 ? "  " : "!=").arg(c2, 2*printWidth);
+
+        qDebug().noquote() << QString("f(%1) = %2 %3 %4").arg(n, printWidth).arg(c1, printWidth*2).arg(c1 == c2 ? "  " : "!=").arg(c2, 2*printWidth);
         assert(c1 == c2);
     }
 
     mpz_class    base2    = 10;
-    unsigned int minpow2  = 18;
-    unsigned int maxpow2  = 18;
+    unsigned int minpow2  = 1;
+    unsigned int maxpow2  = 16;
 
     for (unsigned int p = minpow2; p <= maxpow2; p += 1) {
 
@@ -240,7 +242,21 @@ void test2() {
         mpz_pow_ui(n.get_mpz_t(), n.get_mpz_t(), p);
 
         s64 c = f2(n);
-        qDebug().noquote() << QString("f(10^%1)) = %2").arg(p).arg(c);
+
+        mpz_class n2 = n;
+        while (n2 % 5 == 0) {
+            n2 /= 5;
+        }
+        mpz_class n5 = n;
+        while (n5 % 2 == 0) {
+            n5 /= 2;
+        }
+
+        s64 c2 = f2(n2);
+        s64 c5 = f2(n5);
+
+        // qDebug().noquote() << QString("f(10^%1)) = %2").arg(p, 2).arg(c, maxpow2);
+        qDebug().noquote() << QString("f(10^%1)) = %2,   f(2^%1) = %3,    f(5^%1) = %4").arg(p, 2).arg(c, 18).arg(c2, 2).arg(c5, 18/2);
     }
 }
 
@@ -266,3 +282,54 @@ void test2() {
 // f(   100000000000000000000 (10^20)) =  5483345119
 // f(  1000000000000000000000 (10^21)) = 18953059023
 // f( 10000000000000000000000 (10^22)) = 20058384877
+
+// f(10^ 1)) =        5,   f(2^ 1) =  2,    f(5^ 1) =      2
+// f(10^ 2)) =       19,   f(2^ 2) =  3,    f(5^ 2) =      5
+// f(10^ 3)) =       39,   f(2^ 3) =  4,    f(5^ 3) =      6
+// f(10^ 4)) =      205,   f(2^ 4) =  5,    f(5^ 4) =     33
+// f(10^ 5)) =      713,   f(2^ 5) =  6,    f(5^ 5) =     78
+// f(10^ 6)) =     1287,   f(2^ 6) =  7,    f(5^ 6) =    141
+// f(10^ 7)) =     9469,   f(2^ 7) =  8,    f(5^ 7) =    726
+// f(10^ 8)) =     7901,   f(2^ 8) =  9,    f(5^ 8) =    725
+// f(10^ 9)) =    73411,   f(2^ 9) = 10,    f(5^ 9) =   4804
+// f(10^10)) =    77695,   f(2^10) = 11,    f(5^10) =   4985
+// f(10^11)) =   417293,   f(2^11) = 12,    f(5^11) =  20182
+// f(10^12)) =  2077157,   f(2^12) = 13,    f(5^12) = 127409
+// f(10^13)) =  4384367,   f(2^13) = 14,    f(5^13) = 199472
+// f(10^14)) =  5946265,   f(2^14) = 15,    f(5^14) = 290307
+// f(10^15)) = 22274375,   f(2^15) = 16,    f(5^15) = 842330
+// f(10^16)) = 17165857,   f(2^16) = 17,    f(5^16) = 853713
+
+s64 f3(mpz_class n) {
+    // TODO
+    return 0;
+}
+
+void test3() {
+    const s64 min  = 1;
+    const s64 max  = 10;
+    const s64 step = 1;
+    const int printWidth = (int) ceil(log10(max + 1));
+
+    for (s64 n = min; n <= max; n += step) {
+        s64 c1 = f(n);
+        s64 c3 = f3(n);
+
+        qDebug().noquote() << QString("f(%1) = %2 %3 %4").arg(n, printWidth).arg(c1, printWidth*2).arg(c1 == c3 ? "  " : "!=").arg(c3, 2*printWidth);
+        assert(c1 == c3);
+    }
+
+    mpz_class    base2    = 10;
+    unsigned int minpow2  = 1;
+    unsigned int maxpow2  = 16;
+
+    for (unsigned int p = minpow2; p <= maxpow2; p += 1) {
+
+        mpz_class n(base2);
+        mpz_pow_ui(n.get_mpz_t(), n.get_mpz_t(), p);
+
+        s64 c = f3(n);
+
+        qDebug().noquote() << QString("f(10^%1)) = %2").arg(p, 2).arg(c, maxpow2);
+    }
+}
